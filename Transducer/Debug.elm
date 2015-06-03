@@ -1,14 +1,14 @@
 module Transducer.Debug where
 
-import Debug
-import Transducer exposing (..)
-
 {-| This module provides support for debugging transducers.
 
 # Logging
 @docs debug
 
 -}
+
+import Debug
+import Transducer exposing (..)
 
 {-| Wrap an existing transducer such that input and output of the transducer 
 will be logged with `Debug.log`.
