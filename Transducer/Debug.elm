@@ -29,9 +29,14 @@ will be logged with `Debug.log`.
 debug : String -> Transducer a b r s -> Transducer a b r s
 debug name t =
     let
-        dxf xf = \a -> xf (Debug.log (name ++ " -> ") a)
+        logInput = Debug.log (name ++ ": input")
+        logState = Debug.log (name ++ ": state")
+        logComplete = Debug.log (name ++ ": complete")
+        logProxy reduce input = reduce (Debug.log (name ++ " -> ") input)
     in
         { init = t.init
-        , step = \xf a (s,r) -> (dxf xf |> t.step) (Debug.log (name ++ ": input") a) (Debug.log (name ++ ": state") s,r)
-        , complete = \xf (s,r) -> t.complete (dxf xf) (Debug.log (name ++ ": complete") s,r)
+        , step = \reduce input (s,r) ->
+            (logProxy reduce |> t.step) (logInput input) (logState s,r)
+        , complete = \reduce (s,r) ->
+            t.complete (logProxy reduce) (logComplete s,r)
         }

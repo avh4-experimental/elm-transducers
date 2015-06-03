@@ -71,8 +71,8 @@ type alias Fold input result source = Reducer input result -> result -> source -
 map : (a -> b) -> Transducer a b r ()
 map f =
     { init = ()
-    , step = \xf a (_,r) -> ((),xf (f a) r)
-    , complete = \xf (_,r) -> r
+    , step = \reduce input (_,value) -> ((),reduce (f input) value)
+    , complete = \reduce (_,value) -> value
     }
 
 {-| Keep only values that satisfy the predicate.
@@ -82,8 +82,11 @@ map f =
 filter : (a -> Bool) -> Transducer a a r ()
 filter f =
     { init = ()
-    , step = \xf a (_,r) -> if (f a) then ((),xf a r) else ((),r)
-    , complete = \xf (_,r) -> r
+    , step = \reduce input (_,r) ->
+        if (f input)
+            then ((),reduce input r)
+            else ((),r)
+    , complete = \reduce (_,r) -> r
     }
 
 {-| Map a given function onto a list and flatten the results.
@@ -93,8 +96,8 @@ filter f =
 concatMap : (a -> List b) -> Transducer a b r ()
 concatMap f =
     { init = ()
-    , step = \xf a (_,r) -> ((),List.foldl xf r (f a))
-    , complete = \xf (_,r) -> r
+    , step = \reduce input (_,r) -> ((),List.foldl reduce r (f input))
+    , complete = \reduce (_,r) -> r
     }
 
 {-| Take the first *n* values.
@@ -104,8 +107,11 @@ concatMap f =
 take : Int -> Transducer a a r Int
 take n =
     { init = n
-    , step = \xf a (s,r) -> if (s > 0) then (s-1,xf a r) else (0,r)
-    , complete = \xf (s,r) -> r
+    , step = \reduce input (i,r) ->
+        if (i > 0)
+            then (i-1,reduce input r)
+            else (0,r)
+    , complete = \reduce (i,r) -> r
     }
 
 {-| Drop the first *n* values.
@@ -115,8 +121,11 @@ take n =
 drop : Int -> Transducer a a r Int
 drop n =
     { init = n
-    , step = \xf a (s,r) -> if (s > 0) then (s-1,r) else (0,xf a r)
-    , complete = \xf (s,r) -> r
+    , step = \reduce a (i,r) ->
+        if (i > 0)
+            then (i-1,r)
+            else (0,reduce a r)
+    , complete = \reduce (i,r) -> r
     }
 
 {-| Drop values that repeat the previous value.
@@ -126,26 +135,32 @@ drop n =
 dedupe : Transducer a a r (Maybe a)
 dedupe =
     { init = Nothing
-    , step = \xf a (s,r) -> if (Just a == s) then (s,r) else (Just a, xf a r)
-    , complete = \xf (s,r) -> r
+    , step = \reduce input (s,r) ->
+        if (Just input == s)
+            then (s,r)
+            else (Just input, reduce input r)
+    , complete = \reduce (s,r) -> r
     }
 
 partition : Int -> Transducer a (List a) r (Int,List a)
 partition n =
     { init = (n,[])
-    , step = \xf a ((i,hold),r) -> if (i > 0) then ((i-1,a::hold),r) else ((n,[a]),xf hold r)
-    , complete = \xf ((i,hold),r) -> xf hold r
+    , step = \reduce input ((i,hold),r) ->
+        if (i > 0)
+            then ((i-1,input::hold),r)
+            else ((n,[input]),reduce hold r)
+    , complete = \reduce ((i,hold),r) -> reduce hold r
     }
 
 comp : Transducer a b (s2,r) s1 -> Transducer b c r s2 -> Transducer a c r (s1,s2)
 comp t1 t2 =
     { init = (t1.init, t2.init)
-    , step = \xf a ((s1,s2),r) ->
-        (t1.step (t2.step xf)) a (s1,(s2,r))
+    , step = \reduce input ((s1,s2),r) ->
+        (t1.step (t2.step reduce)) input (s1,(s2,r))
         |> \(ss1',(ss2',rr')) -> ((ss1',ss2'),rr')
-    , complete = \xf ((s1,s2),r) ->
-        (t1.complete (t2.step xf)) (s1,(s2,r))
-        |> t2.complete xf
+    , complete = \reduce ((s1,s2),r) ->
+        (t1.complete (t2.step reduce)) (s1,(s2,r))
+        |> t2.complete reduce
     }
 
 {-| Transducer composition
