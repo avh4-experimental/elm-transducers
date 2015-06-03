@@ -11,7 +11,7 @@ When using `List.map`, it is more efficient to compose multiple functions and th
 
 ```elm
 import List as L
-import Transduce as T exposing ((>>>))
+import Transducer as T exposing ((>>>))
 
 slowMapChain = [1, 2, 3] |> L.map ((+) 10) |> L.map toString
 fastMapChain = [1, 2, 3] |> L.map ((+) 10 >> toString)
