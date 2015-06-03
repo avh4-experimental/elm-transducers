@@ -1,0 +1,17 @@
+{
+    "version": "1.0.0",
+    "summary": "composable transformation of sequences using clojure-inspired transducers",
+    "repository": "https://github.com/avh4/elm-transducers.git",
+    "license": "MIT",
+    "source-directories": [
+        "."
+    ],
+    "exposed-modules": [
+        "Transducer",
+        "Transducer.Debug"
+    ],
+    "dependencies": {
+        "elm-lang/core": "2.0.1 <= v < 3.0.0"
+    },
+    "elm-version": "0.15.0 <= v < 0.16.0"
+}
