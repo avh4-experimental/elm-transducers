@@ -150,6 +150,7 @@ comp t1 t2 =
 
 {-| Transducer composition
 -}
+(>>>) : Transducer a b (s2,r) s1 -> Transducer b c r s2 -> Transducer a c r (s1,s2)
 (>>>) = comp
 
 {-| Apply a transducer.
