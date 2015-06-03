@@ -50,6 +50,14 @@ exampleConvert = T.transduce List.foldr Set.insert Set.empty parseValidInts ["12
 
 ## Differences from clojure's tranducers
 
- - In elm, it is more natural for the `Reducer` type to be `a -> r -> r` instead of `r -> a -> r`
- - Elm is pure, meaning that elm transducers cannot hide state.  As a result, transducers cannot simply be functions as they are in clojure.  This also means that the transducer type must include a type parameter for the transducer's state.
+  - In elm, it is more natural for the `Reducer` type to be `a -> r -> r` instead of `r -> a -> r`
+  - Elm is pure, meaning that elm transducers cannot hide state.  As a result, transducers cannot simply be functions as they are in clojure.  This also means that the transducer type must include a type parameter for the transducer's state.
+
+ ## See also
+
+  - [Understanding Clojure transducers through types](http://conscientiousprogrammer.com/blog/2014/08/07/understanding-cloure-transducers-through-types/)
+  - [jonathanhefner/elm-seq](https://github.com/jonathanhefner/elm-seq)
+  - [Quick recap/commentary: Clojure transducers](https://gist.github.com/ptaoussanis/e537bd8ffdc943bbbce7)
+  - [Some trivial examples of using Clojure Transducers](http://ianrumford.github.io/blog/2014/08/08/Some-trivial-examples-of-using-Clojure-Transducers/)
+  - [Type-safe transducers in Clojure. And Scala. And Haskell.](http://blog.podsnap.com/ducers2.html)
  
