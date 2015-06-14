@@ -60,4 +60,4 @@ exampleConvert = T.transduce List.foldr Set.insert Set.empty parseValidInts ["12
   - [Quick recap/commentary: Clojure transducers](https://gist.github.com/ptaoussanis/e537bd8ffdc943bbbce7)
   - [Some trivial examples of using Clojure Transducers](http://ianrumford.github.io/blog/2014/08/08/Some-trivial-examples-of-using-Clojure-Transducers/)
   - [Type-safe transducers in Clojure. And Scala. And Haskell.](http://blog.podsnap.com/ducers2.html)
- 
+  - [Transducers are fundamental](http://ignaciothayer.com/post/Transducers-Are-Fundamental/)
