@@ -11,14 +11,14 @@ import Debug
 
 double : Transducer a a r ()
 double =
-    { init = ()
+    { init = \reduce r -> ((),r)
     , step = \xf a (_,r) -> ((), r |> xf a |> xf a)
     , complete = \xf (_,r) -> r
     }
 
 generate : a -> Transducer a a r ()
 generate extra =
-    { init = ()
+    { init = \reduce r -> ((),r)
     , step = \xf a (_,r) -> ((),xf a r)
     , complete = \xf (_,r) -> xf extra r
     }

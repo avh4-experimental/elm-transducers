@@ -23,16 +23,16 @@ processing `List`s or `Signal`s.
     exampleSignal = transduceSignal parseValidInts stringSource
 
 # Definitions
-@docs Reducers, Transducer, Fold
+@docs Reducer, Transducer, Fold
 
 # Common transducers
 @docs map, filter, take, drop
 
 # More transducers
-@docs concatMap, dedupe
+@docs concatMap, dedupe, partition
 
 # Composing transducers
-@docs (>>>)
+@docs (>>>), comp
 
 # Applying transducers
 @docs transduce, transduceList, transduceSignal, transduceSet, transduceArray
@@ -54,7 +54,7 @@ transforms a Reducer into a function collapsing the internal state.
 When defining transducers, the type parameter `r` should be left free.
 -}
 type alias Transducer a b r state = 
-    { init: state
+    { init: Reducer b r -> r -> (state,r)
     , step: Reducer b r -> Reducer a (state,r)
     , complete: Reducer b r -> ((state,r) -> r)
     }
@@ -70,7 +70,7 @@ type alias Fold input result source = Reducer input result -> result -> source -
 -}
 map : (a -> b) -> Transducer a b r ()
 map f =
-    { init = ()
+    { init = \reduce r -> ((),r)
     , step = \reduce input (_,value) -> ((),reduce (f input) value)
     , complete = \reduce (_,value) -> value
     }
@@ -81,7 +81,7 @@ map f =
 -}
 filter : (a -> Bool) -> Transducer a a r ()
 filter f =
-    { init = ()
+    { init = \reduce r -> ((),r)
     , step = \reduce input (_,r) ->
         if (f input)
             then ((),reduce input r)
@@ -95,7 +95,7 @@ filter f =
 -}
 concatMap : (a -> List b) -> Transducer a b r ()
 concatMap f =
-    { init = ()
+    { init = \reduce r -> ((),r)
     , step = \reduce input (_,r) -> ((),List.foldl reduce r (f input))
     , complete = \reduce (_,r) -> r
     }
@@ -106,7 +106,7 @@ concatMap f =
 -}
 take : Int -> Transducer a a r Int
 take n =
-    { init = n
+    { init = \reduce r -> (n,r)
     , step = \reduce input (i,r) ->
         if (i > 0)
             then (i-1,reduce input r)
@@ -120,7 +120,7 @@ take n =
 -}
 drop : Int -> Transducer a a r Int
 drop n =
-    { init = n
+    { init = \reduce r -> (n,r)
     , step = \reduce a (i,r) ->
         if (i > 0)
             then (i-1,r)
@@ -134,7 +134,7 @@ drop n =
 -}
 dedupe : Transducer a a r (Maybe a)
 dedupe =
-    { init = Nothing
+    { init = \reduce r -> (Nothing,r)
     , step = \reduce input (s,r) ->
         if (Just input == s)
             then (s,r)
@@ -142,9 +142,13 @@ dedupe =
     , complete = \reduce (s,r) -> r
     }
 
+{-| Group a series of values into Lists of size n.
+
+    transduceList (partition 2) [1,2,3,4,5] == [[1,2],[3,4],[5]]
+-}
 partition : Int -> Transducer a (List a) r (Int,List a)
 partition n =
-    { init = (n,[])
+    { init = \reduce r -> ((n,[]),r)
     , step = \reduce input ((i,hold),r) ->
         if (i > 0)
             then ((i-1,input::hold),r)
@@ -152,9 +156,13 @@ partition n =
     , complete = \reduce ((i,hold),r) -> reduce hold r
     }
 
+{-| An alias for (>>>).
+-}
 comp : Transducer a b (s2,r) s1 -> Transducer b c r s2 -> Transducer a c r (s1,s2)
 comp t1 t2 =
-    { init = (t1.init, t2.init)
+    { init = \reduce r ->
+        (t2.init reduce r) |> t1.init (t2.step reduce)
+        |> \(s1,(s2,rr)) -> ((s1,s2),rr)
     , step = \reduce input ((s1,s2),r) ->
         (t1.step (t2.step reduce)) input (s1,(s2,r))
         |> \(ss1',(ss2',rr')) -> ((ss1',ss2'),rr')
@@ -172,7 +180,7 @@ comp t1 t2 =
 -}
 transduce : Fold a (s,r) x -> Reducer b r -> r -> Transducer a b r s -> x -> r
 transduce fold reduce init t source =
-    fold (t.step reduce) (t.init,init) source
+    fold (t.step reduce) (t.init reduce init) source
     |> t.complete reduce
 
 {-| Apply a Transducer to a List, producing a List.
@@ -203,5 +211,5 @@ never terminate, the transducer's `complete` will never be invoked.
 -}
 transduceSignal : Transducer a b b s -> b -> Signal a -> Signal b
 transduceSignal t init source =
-    Signal.foldp (t.step always) (t.init,init) source
+    Signal.foldp (t.step always) (t.init always init) source
     |> Signal.map snd
