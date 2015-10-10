@@ -1,5 +1,5 @@
 {
-    "version": "2.0.0",
+    "version": "2.0.1",
     "summary": "Composable transformation of sequences using clojure-inspired transducers",
     "repository": "https://github.com/avh4/elm-transducers.git",
     "license": "MIT",
