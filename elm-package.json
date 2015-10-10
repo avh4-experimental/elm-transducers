@@ -4,7 +4,7 @@
     "repository": "https://github.com/avh4/elm-transducers.git",
     "license": "MIT",
     "source-directories": [
-        "."
+        "src"
     ],
     "exposed-modules": [
         "Transducer",
