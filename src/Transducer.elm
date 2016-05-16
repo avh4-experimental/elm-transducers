@@ -1,14 +1,12 @@
-module Transducer (..) where
+module Transducer exposing (..)
 
 {-| A transducer is a composable way of processing a series of values.
 Many basic transducers correspond to functions you may be familiar with for
-processing `List`s or `Signal`s.
+processing `List`s.
 
     import Maybe
     import String
     import Transducer exposing (..)
-
-    port stringSource : Signal String
 
     parseValidInts =
         map String.toInt
@@ -18,9 +16,6 @@ processing `List`s or `Signal`s.
 
     exampleList : List Int
     exampleList = transduceList parseValidInts ["123", "-34", "35.0", "SDF", "7"]
-
-    exampleSignal : Signal Int
-    exampleSignal = transduceSignal parseValidInts stringSource
 
 # Definitions
 @docs Reducer, Transducer, Fold
@@ -35,7 +30,7 @@ processing `List`s or `Signal`s.
 @docs (>>>), comp
 
 # Applying transducers
-@docs transduce, transduceList, transduceSignal, transduceSet, transduceArray
+@docs transduce, transduceList, transduceSet, transduceArray
 -}
 
 import Set exposing (Set)
@@ -239,14 +234,3 @@ transduceSet =
 transduceArray : Transducer a b (Array b) s -> Array a -> Array b
 transduceArray =
     transduce Array.foldl Array.push Array.empty
-
-
-{-| Apply a Transducer to a Signal, producing a new Signal.  Note that because Signals
-never terminate, the transducer's `complete` will never be invoked.
-
-    main = transduceSignal (map show) (show "initial value") Mouse.position
--}
-transduceSignal : Transducer a b b s -> b -> Signal a -> Signal b
-transduceSignal t init source =
-    Signal.foldp (t.step always) (t.init always init) source
-        |> Signal.map snd

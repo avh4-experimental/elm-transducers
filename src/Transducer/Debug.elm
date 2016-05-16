@@ -1,4 +1,4 @@
-module Transducer.Debug (..) where
+module Transducer.Debug exposing (..)
 
 {-| This module provides support for debugging transducers.
 
@@ -30,13 +30,17 @@ will be logged with `Debug.log`.
 debug : String -> Transducer a b r s -> Transducer a b r s
 debug name t =
     let
-        logInput = Debug.log (name ++ ": input")
+        logInput =
+            Debug.log (name ++ ": input")
 
-        logState = Debug.log (name ++ ": state")
+        logState =
+            Debug.log (name ++ ": state")
 
-        logComplete = Debug.log (name ++ ": complete")
+        logComplete =
+            Debug.log (name ++ ": complete")
 
-        logProxy reduce input = reduce (Debug.log (name ++ " -> ") input)
+        logProxy reduce input =
+            reduce (Debug.log (name ++ " -> ") input)
     in
         { init = t.init
         , step =

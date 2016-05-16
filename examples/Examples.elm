@@ -1,15 +1,15 @@
-module Main (..) where
+module Main exposing (..)
 
 import Transducer exposing (..)
 import Transducer as T exposing ((>>>))
 import Transducer.Debug exposing (..)
-import Graphics.Element exposing (show, flow, down)
+import Html exposing (Html)
+import Html.App
 import Set
 import Array
 import Mouse
 import String
 import Result
-import Debug
 
 
 double : Transducer a a r ()
@@ -70,9 +70,20 @@ parseValidInts =
         >>> T.map (Maybe.withDefault 0)
 
 
+show : a -> Html msg
+show a =
+    Html.text <| toString a
+
+
+flowDown : List (Html msg) -> Html msg
+flowDown children =
+    children
+        |> List.map (\child -> Html.div [] [ child ])
+        |> Html.div []
+
+
 render e =
-    flow
-        down
+    flowDown
         [ e
         , show <| transduceList (take 2) [ "A", "B", "C", "D" ]
         , show <| transduceList (map toString) [ 1, 2, 3, 4 ]
@@ -91,10 +102,19 @@ render e =
 
 
 mt =
-    filter (\( x, y ) -> y <= 100)
+    filter (\{ x, y } -> y <= 100)
         >>> map show
 
 
 main =
-    transduceSignal (mt) (show "No movement yet with y <= 100") Mouse.position
-        |> Signal.map render
+    Html.App.program
+        { init = ( Html.text "", Cmd.none )
+        , subscriptions = \_ -> Mouse.moves identity
+        , update =
+            \a _ ->
+                ( transduceList mt [ a ]
+                    |> Html.div []
+                , Cmd.none
+                )
+        , view = render
+        }
