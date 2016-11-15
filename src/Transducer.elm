@@ -186,7 +186,7 @@ comp t1 t2 =
     , step =
         \reduce input ( ( s1, s2 ), r ) ->
             (t1.step (t2.step reduce)) input ( s1, ( s2, r ) )
-                |> \( ss1', ( ss2', rr' ) ) -> ( ( ss1', ss2' ), rr' )
+                |> \( ss1_, ( ss2_, rr_ ) ) -> ( ( ss1_, ss2_ ), rr_ )
     , complete =
         \reduce ( ( s1, s2 ), r ) ->
             (t1.complete (t2.step reduce)) ( s1, ( s2, r ) )
@@ -222,7 +222,7 @@ transduceList =
 
     transduceSet t xs = transduce Set.foldr Set.insert Set.empty t xs
 -}
-transduceSet : Transducer comparable comparable' (Set comparable'') s -> Set comparable -> Set comparable''
+transduceSet : Transducer comparable comparable_ (Set comparable__) s -> Set comparable -> Set comparable__
 transduceSet =
     transduce Set.foldr Set.insert Set.empty
 

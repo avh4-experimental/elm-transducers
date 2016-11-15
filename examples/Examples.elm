@@ -4,7 +4,6 @@ import Transducer exposing (..)
 import Transducer as T exposing ((>>>))
 import Transducer.Debug exposing (..)
 import Html exposing (Html)
-import Html.App
 import Set
 import Array
 import Mouse
@@ -28,23 +27,23 @@ generate extra =
     }
 
 
-take' n =
+take_ n =
     debug "take" <| take n
 
 
-map' fn =
+map_ fn =
     debug "map" <| map fn
 
 
-filter' fn =
+filter_ fn =
     debug "filter" <| filter fn
 
 
-generate' a =
+generate_ a =
     debug "generate" <| generate a
 
 
-double' =
+double_ =
     debug "double" <| double
 
 
@@ -58,7 +57,7 @@ combined =
         >>> partition 3
 
 
-combined' =
+combined_ =
     debug "combined" combined
 
 
@@ -95,8 +94,8 @@ render e =
           --, show <| transduceArray combined (Array.initialize 5 identity)
           --, show <| transduce List.foldr Set.insert (Set.singleton "9") combined [1, 2, 3, 4]
           --, show <| transduce Set.foldr Set.insert Set.empty combined (Set.fromList [8])
-        , show <| transduce List.foldr (+) 0 (double `comp` generate 100) [ 1, 2, 3 ]
-        , show <| transduce Set.foldr (+) 0 (double `comp` generate 100) (Set.fromList [ 1, 2, 3 ])
+        , show <| transduce List.foldr (+) 0 (comp double (generate 100)) [ 1, 2, 3 ]
+        , show <| transduce Set.foldr (+) 0 (comp double (generate 100)) (Set.fromList [ 1, 2, 3 ])
         , show <| transduceList parseValidInts [ "123", "-34", "35.0", "SDF", "7" ]
         ]
 
@@ -107,7 +106,7 @@ mt =
 
 
 main =
-    Html.App.program
+    Html.program
         { init = ( Html.text "", Cmd.none )
         , subscriptions = \_ -> Mouse.moves identity
         , update =
