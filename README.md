@@ -29,18 +29,25 @@ You can also define transducer processes that convert between types (for example
 import Maybe
 import String
 import Transducer as T exposing ((>>>))
+import Result exposing (toMaybe)
+import Set exposing (Set)
+
 
 parseValidInts =
-	T.map String.toInt
-	>>> T.map toMaybe
-    >>> T.filter ((/=) Nothing)
-	>>> T.map (Maybe.withDefault 0)
+    T.map String.toInt
+        >>> T.map toMaybe
+        >>> T.filter ((/=) Nothing)
+        >>> T.map (Maybe.withDefault 0)
+
 
 exampleList : List Int
-exampleList = T.transduceList parseValidInts ["123", "-34", "35.0", "SDF", "7"]
+exampleList =
+    T.transduceList parseValidInts [ "123", "-34", "35.0", "SDF", "7" ]
+
 
 exampleConvert : Set Int
-exampleConvert = T.transduce List.foldr Set.insert Set.empty parseValidInts ["123", "-34", "35.0", "SDF", "7"]
+exampleConvert =
+    T.transduce List.foldr Set.insert Set.empty parseValidInts [ "123", "-34", "35.0", "SDF", "7" ]
 ```
 
 
