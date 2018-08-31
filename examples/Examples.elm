@@ -108,8 +108,8 @@ mt =
 
 decodeMouseLocation =
     Json.Decode.map2 (\x y -> { x = x, y = y })
-        (Json.Decode.at [ "target", "clientX" ] Json.Decode.int)
-        (Json.Decode.at [ "target", "clientY" ] Json.Decode.int)
+        (Json.Decode.at [ "clientX" ] Json.Decode.int)
+        (Json.Decode.at [ "clientY" ] Json.Decode.int)
 
 
 main =
