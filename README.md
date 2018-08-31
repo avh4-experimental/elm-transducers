@@ -1,4 +1,6 @@
 
+[![Build Status](https://travis-ci.org/avh4-experimental/elm-transducers.svg?branch=master)](https://travis-ci.org/avh4-experimental/elm-transducers)
+
 # elm-transducers
 
 A [transducer](http://clojure.org/transducers) is a composable way of processing a series of values.  Many basic transducers correspond to functions you may be familiar with for processing `List`s.
