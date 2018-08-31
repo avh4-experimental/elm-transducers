@@ -1,8 +1,10 @@
-module Transducer.Debug exposing (..)
+module Transducer.Debug exposing (debug)
 
 {-| This module provides support for debugging transducers.
 
+
 # Logging
+
 @docs debug
 
 -}
@@ -14,8 +16,14 @@ import Transducer exposing (..)
 {-| Wrap an existing transducer such that input and output of the transducer
 will be logged with `Debug.log`.
 
-    filter' pred = debug "filter" (filter pred)
-    main = show (transduceList (filter' ((/=) 2)) [1, 2, 3])
+
+    filter' pred =
+        debug "filter" (filter pred)
+
+    main =
+        show (transduceList (filter' ((/=) 2)) [ 1, 2, 3 ])
+
+
     -- Console output:
     --     filter: input: 3
     --     filter: state: ()
@@ -26,6 +34,7 @@ will be logged with `Debug.log`.
     --     filter: state: ()
     --     filter -> : 1
     --     filter: complete: ()
+
 -}
 debug : String -> Transducer a b r s -> Transducer a b r s
 debug name t =
@@ -42,11 +51,11 @@ debug name t =
         logProxy reduce input =
             reduce (Debug.log (name ++ " -> ") input)
     in
-        { init = t.init
-        , step =
-            \reduce input ( s, r ) ->
-                (logProxy reduce |> t.step) (logInput input) ( logState s, r )
-        , complete =
-            \reduce ( s, r ) ->
-                t.complete (logProxy reduce) ( logComplete s, r )
-        }
+    { init = t.init
+    , step =
+        \reduce input ( s, r ) ->
+            (logProxy reduce |> t.step) (logInput input) ( logState s, r )
+    , complete =
+        \reduce ( s, r ) ->
+            t.complete (logProxy reduce) ( logComplete s, r )
+    }
