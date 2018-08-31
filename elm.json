@@ -1,9 +1,9 @@
 {
     "type": "package",
-    "name": "avh4/elm-transducers",
+    "name": "avh4-experimental/elm-transducers",
     "summary": "Composable transformation of sequences using clojure-inspired transducers",
     "license": "MIT",
-    "version": "3.0.1",
+    "version": "1.0.0",
     "exposed-modules": [
         "Transducer",
         "Transducer.Debug"
