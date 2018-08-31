@@ -9,16 +9,21 @@ module Transducer.Debug exposing (debug)
 
 -}
 
-import Debug
 import Transducer exposing (..)
 
 
 {-| Wrap an existing transducer such that input and output of the transducer
 will be logged with `Debug.log`.
 
+Because Elm 0.19 no longer allows published packages to use `Debug.log`,
+you must provide `Debug.log` as a parameter to this function.
+Also, because Elm lacks Rank-N types, you must provide `Debug.log` three times
+so it can be specialized for the input, the output, and the state of the transducer.
+
+    import Debug
 
     filter' pred =
-        debug "filter" (filter pred)
+        debug Debug.log Debug.log Debug.log "filter" (filter pred)
 
     main =
         show (transduceList (filter' ((/=) 2)) [ 1, 2, 3 ])
@@ -36,20 +41,20 @@ will be logged with `Debug.log`.
     --     filter: complete: ()
 
 -}
-debug : String -> Transducer a b r s -> Transducer a b r s
-debug name t =
+debug : (String -> a -> a) -> (String -> b -> b) -> (String -> s -> s) -> String -> Transducer a b r s -> Transducer a b r s
+debug debugLogA debugLogB debugLogS name t =
     let
         logInput =
-            Debug.log (name ++ ": input")
+            debugLogA (name ++ ": input")
 
         logState =
-            Debug.log (name ++ ": state")
+            debugLogS (name ++ ": state")
 
         logComplete =
-            Debug.log (name ++ ": complete")
+            debugLogS (name ++ ": complete")
 
         logProxy reduce input =
-            reduce (Debug.log (name ++ " -> ") input)
+            reduce (debugLogB (name ++ " -> ") input)
     in
     { init = t.init
     , step =

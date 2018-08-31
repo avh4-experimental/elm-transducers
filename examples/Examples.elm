@@ -29,23 +29,23 @@ generate extra =
 
 
 take_ n =
-    debug "take" <| take n
+    debug Debug.log Debug.log Debug.log "take" <| take n
 
 
 map_ fn =
-    debug "map" <| map fn
+    debug Debug.log Debug.log Debug.log "map" <| map fn
 
 
 filter_ fn =
-    debug "filter" <| filter fn
+    debug Debug.log Debug.log Debug.log "filter" <| filter fn
 
 
 generate_ a =
-    debug "generate" <| generate a
+    debug Debug.log Debug.log Debug.log "generate" <| generate a
 
 
 double_ =
-    debug "double" <| double
+    debug Debug.log Debug.log Debug.log "double" <| double
 
 
 combined =
@@ -59,7 +59,7 @@ combined =
 
 
 combined_ =
-    debug "combined" combined
+    debug Debug.log Debug.log Debug.log "combined" combined
 
 
 parseValidInts : Transducer String Int r ( ( (), () ), () )
